@@ -42,7 +42,7 @@ app:
 
 #management:
 #  endpoints:
-#    web:
+#    web:w
 #      exposure:
 #        include: health,info
 #  endpoint:

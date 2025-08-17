@@ -1,14 +1,20 @@
-# ---- Build stage ----
-FROM gradle:8.9-jdk21-alpine AS build
-WORKDIR /home/gradle/app
-COPY . .
-RUN gradle clean bootJar -x test
-
-# ---- Runtime stage ----
-FROM eclipse-temurin:21-jre-alpine
+# ---------- Build stage ----------
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
-COPY --from=build /home/gradle/app/build/libs/*.jar app.jar
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75"
+COPY . .
+# Ensure gradlew is executable (in case git lost the bit)
+RUN chmod +x ./gradlew
+RUN ./gradlew clean bootJar -x test
+
+# ---------- Run stage ----------
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+# copy the built jar
+COPY --from=build /app/build/libs/*.jar app.jar
+
+# optional JVM opts; Render will inject PORT
+ENV JAVA_OPTS=""
+ENV SPRING_PROFILES_ACTIVE=prod
+
 EXPOSE 8080
-# Render sets PORT env var; pass it through to Spring
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar --server.port=${PORT:-8080}"]
+CMD ["sh","-c","java $JAVA_OPTS -jar app.jar --server.port=${PORT:-8080}"]

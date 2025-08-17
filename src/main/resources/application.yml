@@ -1,3 +1,7 @@
+# src/main/resources/application.yml
+server:
+  port: ${PORT:8080}   # Use Render's PORT if present
+
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/booking}
@@ -10,18 +14,19 @@ spring:
       ddl-auto: validate
     show-sql: true
     properties:
-      hibernate.format_sql: true
+      hibernate:
+        format_sql: true
 
-server:
-  port: ${PORT:8080}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
 
 app:
   jwt:
     secret: ${JWT_SECRET:dev-secret}
     expirationSeconds: 86400
-
-management:
-  endpoints:
-    web.exposure.include: health,info
-  endpoint:
-    health.show-details: never

@@ -23,7 +23,17 @@ public class SecurityConfig {
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(reg -> reg
-						.requestMatchers("/api/auth/**", "/actuator/**").permitAll()
+						// Swagger/OpenAPI (docs + UI)
+						.requestMatchers(
+								"/v3/api-docs/**",
+								"/swagger-ui.html",
+								"/swagger-ui/**"
+						).permitAll()
+
+						// Actuator + Auth
+						.requestMatchers("/actuator/**", "/api/auth/**").permitAll()
+
+						// Everything else requires auth
 						.anyRequest().authenticated()
 				)
 				.exceptionHandling(ex -> ex
